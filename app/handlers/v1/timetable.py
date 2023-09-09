@@ -1,4 +1,4 @@
-from app.utils.requests.create_json import create_response
+from app.utils.requests.create_json import create_response, BaseResponse
 from fastapi import APIRouter, UploadFile, Form, status
 from fastapi.responses import JSONResponse
 
@@ -6,15 +6,6 @@ from app.utils.celery_worker.main import task_manager
 from app.utils.celery_worker.config import app as celery_app
 
 router = APIRouter()
-
-
-@router.post("/upload")
-async def add_check_file(file: UploadFile):
-    task = task_manager.delay(file.filename)
-    return JSONResponse(create_response(
-        message='Added file on processing',
-        data={"task_id": task.id},
-    ), status_code=status.HTTP_202_ACCEPTED)
 
 
 class GetCeleryTasks:
@@ -48,8 +39,24 @@ class GetCeleryTasks:
             }
 
 
-@router.get("/status/{task_id}")
+@router.post("/upload", response_model=BaseResponse, )
+async def add_check_file(file: UploadFile):
+    """
+        Додає файл в чергу на обробку
+    """
+    task = task_manager.delay(file.filename)
+    return JSONResponse(create_response(
+        message='Added file on processing',
+        data={"task_id": task.id},
+    ), status_code=status.HTTP_202_ACCEPTED)
+
+
+@router.get("/status/{task_id}", response_model=BaseResponse)
 async def get_status_or_result(task_id: str, page: list | None = None):
+    """
+        Перевірити статус, або отримати результат обробки файла
+    """
+
     task = task_manager.AsyncResult(task_id)
     celery_manager = celery_app.control.inspect()
 

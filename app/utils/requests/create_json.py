@@ -1,10 +1,19 @@
 from enum import Enum
-from typing import Optional
+from typing import Optional, List, Dict
+from pydantic import BaseModel
 
 
 class Status(Enum):
     SUCCESS = 'success'
     ERROR = 'error'
+
+
+class BaseResponse(BaseModel):
+    status: Status
+    warnings: List | None = []
+    data: Dict | None
+
+    message: str
 
 
 def create_response(
@@ -29,4 +38,3 @@ def create_response(
 
         'message': message
     }
-

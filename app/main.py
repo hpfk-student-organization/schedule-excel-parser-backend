@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 
 from fastapi import FastAPI
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from app.handlers import v1
 from app.handlers.exception import error_4xx
@@ -32,6 +33,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# app.add_exception_handler(RequestValidationError, error_4xx.validation_exception_handler)
+app.add_exception_handler(RequestValidationError, error_4xx.validation_exception_handler)
 
 app.include_router(v1.routers, prefix=basic_prefix + "/v1")
