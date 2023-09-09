@@ -13,6 +13,7 @@ services:
       - REDIS_HOST=redis
     depends_on:
       - celery-worker
+      - redis
 
   celery-worker:
     build:
