@@ -7,6 +7,7 @@ class BaseTaskWithRetry(Task):
     retry_kwargs = {'max_retries': 5}
     retry_backoff = True
 
+
 @app.task(bind=True, base=BaseTaskWithRetry)
 def task_manager(self, file_name):
     try:
