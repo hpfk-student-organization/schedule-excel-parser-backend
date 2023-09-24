@@ -12,7 +12,9 @@ WORKDIR /app
 
 COPY --from=builder /install /usr/local/
 
-COPY script script
+COPY script/base.sh script/base.sh
+COPY script/docker-entrypoint.sh script/docker-entrypoint.sh
+COPY script/docker-entrypoint-init.sh script/docker-entrypoint-init.sh
 
 COPY app app
 

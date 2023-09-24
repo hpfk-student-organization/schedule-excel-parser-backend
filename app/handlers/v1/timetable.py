@@ -1,3 +1,5 @@
+import io
+
 from app.utils.requests.create_json import create_response, BaseResponse
 from fastapi import APIRouter, UploadFile, Form, status
 from fastapi.responses import JSONResponse
@@ -44,7 +46,9 @@ async def add_check_file(file: UploadFile):
     """
         Додає файл в чергу на обробку
     """
-    task = task_manager.delay(file.filename)
+    file_io = await file.read()
+    task = task_manager.delay(file_io)
+
     return JSONResponse(create_response(
         message='Added file on processing',
         data={"task_id": task.id},
@@ -56,9 +60,9 @@ async def get_status_or_result(task_id: str, page: list | None = None):
     """
         Перевірити статус, або отримати результат обробки файла
     """
+    celery_manager = celery_app.control.inspect()
 
     task = task_manager.AsyncResult(task_id)
-    celery_manager = celery_app.control.inspect()
 
     data = {}
     message = "Get result or status task"
@@ -83,7 +87,7 @@ async def get_status_or_result(task_id: str, page: list | None = None):
             status_code = status.HTTP_102_PROCESSING
         case "SUCCESS":
             message = "The task is completed"
-            data['result'] = {}
+            data['result'] = task.result
 
         case "FAILURE":
             message = "The task was not completed successfully. Try again later send new file"

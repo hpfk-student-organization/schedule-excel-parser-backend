@@ -17,14 +17,13 @@ services:
 
   celery-worker:
     build:
-      dockerfile: Dockerfiles/Dockerfile-app
+      dockerfile: Dockerfiles/Dockerfile-celery
       context: .
     env_file:
       - .env
     environment:
       - REDIS_HOST=redis
-    command:
-      - "/app/script/docker-entrypoint-celery.sh"
+    tty: true
     depends_on:
       - redis
 

@@ -1,0 +1,25 @@
+ARG docker_container=tensorflow/tensorflow:2.14.0rc1
+
+FROM ${docker_container} AS builder
+
+WORKDIR /app
+
+COPY requirements-celery.txt .
+
+RUN pip install --prefix=/install -r requirements-celery.txt
+
+FROM ${docker_container}
+
+WORKDIR /app
+
+COPY --from=builder /install/local/ /usr/local/
+
+COPY script/base.sh script/base.sh
+COPY script/docker-entrypoint-celery.sh script/docker-entrypoint-celery.sh
+
+COPY app app
+
+RUN find script -type f -exec chmod +x {} \;
+
+CMD ["/app/script/docker-entrypoint-celery.sh"]
+
