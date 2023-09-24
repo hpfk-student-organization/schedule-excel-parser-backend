@@ -2,7 +2,7 @@ FROM python:3.11-alpine AS builder
 
 WORKDIR /app
 
-COPY requirements.txt .
+COPY requirements/requirements.txt .
 
 RUN pip install --prefix=/install -r requirements.txt
 
