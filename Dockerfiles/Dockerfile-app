@@ -1,0 +1,24 @@
+FROM python:3.11-alpine AS builder
+
+WORKDIR /app
+
+COPY requirements/requirements.txt .
+
+RUN pip install --prefix=/install -r requirements.txt
+
+FROM python:3.11-alpine
+
+WORKDIR /app
+
+COPY --from=builder /install /usr/local/
+
+COPY script/base.sh script/base.sh
+COPY script/docker-entrypoint.sh script/docker-entrypoint.sh
+COPY script/docker-entrypoint-init.sh script/docker-entrypoint-init.sh
+
+COPY app app
+
+RUN find script -type f -exec chmod +x {} \;
+
+CMD ["/app/script/docker-entrypoint.sh"]
+
